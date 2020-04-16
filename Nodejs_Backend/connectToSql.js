@@ -1,5 +1,14 @@
-const sql = require("msnodesqlv8");
- 
-const connection = "server=.;Database=Master;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
+const sql = require('mssql/msnodesqlv8')
 
-exports.connection = connection
+const poolPromise = new sql.ConnectionPool({
+      server: "LAPTOP-G7A1FT2J",
+      database: "Memomi",
+      options: {
+        trustedConnection: true
+      }
+    })
+
+const poolConnect = poolPromise.connect()
+
+module.exports = {poolConnect}
+
