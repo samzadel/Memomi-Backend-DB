@@ -16,7 +16,7 @@ router.post('/signUp', (req, res) => {
 
     const queryCheckExistEmail = `USE Memomi 
     set nocount on;
-    SELECT * FROM [USER] WHERE EMAIL = '${req.body.email}'`
+    SELECT * FROM [TBL_USER] WHERE EMAIL = '${req.body.email}'`
 
     const result = await request.query(queryCheckExistEmail);
 
@@ -25,7 +25,7 @@ router.post('/signUp', (req, res) => {
     }
     else{
       const queryInsertDataSignUp = `USE Memomi
-      INSERT INTO dbo.[USER] (EMAIL,PASSWORD,YEAR_OF_BIRTH)
+      INSERT INTO dbo.[TBL_USER] (EMAIL,PASSWORD,YEAR_OF_BIRTH)
       VALUES ('${req.body.email}',${req.body.password},${req.body.year_birth})`;
 
       await request.query(queryInsertDataSignUp).then(()=>{
