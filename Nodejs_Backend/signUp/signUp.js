@@ -1,6 +1,7 @@
 const express = require('express')
 const sql = require('mssql/msnodesqlv8')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 const dbConfigConnection = require('../connectToSql')
 const verifyToken = require('./checkToken')
 const router = express.Router()
@@ -9,7 +10,7 @@ const router = express.Router()
 router.post('/signUp', (req, res) => {
 
   const main = async () => {
-  
+
     const pool = await dbConfigConnection.poolConnect;
 
     const request = new sql.Request(pool);
@@ -20,20 +21,33 @@ router.post('/signUp', (req, res) => {
 
     const result = await request.query(queryCheckExistEmail);
 
-    if (result['recordset'].length !== 0){
+    if (result['recordset'].length !== 0) {
       res.json("email exists")
     }
-    else{
+    else {
+
+      function hashPwd() {
+        return new Promise((resolve, reject) => {
+          bcrypt.genSalt(10, function (err, salt) {
+            bcrypt.hash(req.body.password, salt, function (err, hash) {
+              resolve(hash)
+            })
+          });
+        })
+      }
+      
+      const newHashPwd = await hashPwd()
+
       const queryInsertDataSignUp = `USE Memomi
       INSERT INTO dbo.[TBL_USER] (EMAIL,PASSWORD,YEAR_OF_BIRTH)
-      VALUES ('${req.body.email}',${req.body.password},${req.body.year_birth})`;
+      VALUES ('${req.body.email}','${newHashPwd}',${req.body.year_birth})`;
 
-      await request.query(queryInsertDataSignUp).then(()=>{
+      await request.query(queryInsertDataSignUp).then(() => {
         jwt.sign({ user: req.body.email }, 'secretKey', { expiresIn: '60s' }, function (err, token) {
-              res.json({ token, message: 'Vous etes inscrit' })
-            })
-      });      
-    } 
+          res.json({ token, message: 'Vous etes inscrit' })
+        })
+      });
+    }
   }
   main()
 })
