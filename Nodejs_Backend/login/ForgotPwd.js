@@ -2,11 +2,29 @@ const express = require('express')
 const sql = require('mssql/msnodesqlv8')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+//const  hbs = require('nodemailer-express-handlebars')
 const dbConfigConnection = require('../connectToSql')
 const router = express.Router()
 
 
-router.post('/login',(req,res)=>{
+ router.post('/ForgotPwd',(req,res)=>{
+//   email = process.env.MAILER_EMAIL_ID || 'app.memomi@gmail.com',
+//   pass = process.env.MAILER_PASSWORD || 'Za021166'
+//   nodemailer = require('nodemailer');
+
+// var smtpTransport = nodemailer.createTransport({
+//   service: process.env.MAILER_SERVICE_PROVIDER || 'Gmail',
+//   auth: {
+//     user: email,
+//     pass: pass}
+// });
+
+// var handlebarsOptions = {
+//   viewEngine: 'handlebars',
+//   viewPath: path.resolve('./api/templates/'),
+//   extName: '.html'
+// };
+// smtpTransport.use('compile', hbs(handlebarsOptions));
     const main = async () => {
   
         const pool = await dbConfigConnection.poolConnect;
@@ -20,22 +38,7 @@ router.post('/login',(req,res)=>{
         const result = await request.query(queryCheckExistEmail);
 
         if (result['recordset'].length !== 0){
-          const queryCheckPwd = `USE Memomi 
-          set nocount on;
-          SELECT PASSWORD FROM [TBL_USER] WHERE EMAIL = '${req.body.email}'`
-
-          const pwd = await request.query(queryCheckPwd)
-
-          const hashPwd = pwd['recordset'][0]['PASSWORD'] 
-
-          await bcrypt.compare(req.body.password,hashPwd).then((resultComparison)=>{
-            if(resultComparison){
-              jwt.sign({ user: req.body.email }, 'secretKey', { expiresIn: '60s' }, function (err, token){res.json({ token, message: 'succeed' })})
-            }else{
-              res.json('Bad password')
-            }
-          })
-
+            res.json('succeed')
         }
         else{
           res.json('Email doesn\'t found')
